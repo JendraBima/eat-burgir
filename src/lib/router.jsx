@@ -5,6 +5,7 @@ import Register from "../pages/Auth/register/Register";
 import AdminPage from "../pages/admin";
 import DashboardLayout from "../pages/admin/layout/DashboardLayout";
 import ProductAdminPage from "../pages/admin/produk";
+import ProfilePage from "../pages/admin/profile";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 export const router = createBrowserRouter([
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
       {
         path: "produk",
         element:<ProductAdminPage/>
+      },
+      {
+        path: "profile",
+        element:<ProfilePage/>
       }
     ],
   },

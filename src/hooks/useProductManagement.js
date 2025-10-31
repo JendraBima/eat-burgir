@@ -12,7 +12,7 @@ export const useProductManagement = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
@@ -75,19 +75,16 @@ export const useProductManagement = () => {
     }
   };
 
-  // Buka modal konfirmasi delete
   const openDeleteModal = (product) => {
     setProductToDelete(product);
     setIsDeleteModalOpen(true);
   };
 
-  // Tutup modal konfirmasi delete
   const closeDeleteModal = () => {
     setIsDeleteModalOpen(false);
     setProductToDelete(null);
   };
 
-  // Konfirmasi delete produk
   const confirmDeleteProduct = async () => {
     if (!productToDelete) return;
 

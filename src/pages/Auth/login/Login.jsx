@@ -19,7 +19,6 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // handler submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -119,7 +118,7 @@ const Login = () => {
         </p>
       </div>
 
-      <div className="flex-1 bg-[#F8B259] flex items-center justify-center">
+      <div className="hidden md:flex flex-1 bg-[#F8B259] items-center justify-center">
         <img
           src="/burgir-menu.png"
           alt="Burger"

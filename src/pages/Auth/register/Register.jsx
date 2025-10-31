@@ -180,7 +180,7 @@ const Register = () => {
         </form>
       </div>
 
-      <div className="flex-1 bg-[#F8B259] flex items-center justify-center">
+      <div className="flex-1 bg-[#F8B259] md:flex hidden items-center justify-center">
         <img
           src="/burgir-menu.png"
           alt="Burger"

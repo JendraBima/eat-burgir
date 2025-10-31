@@ -1,9 +1,9 @@
-import {Button} from "@heroui/react";
+import DashboardComponent from "../../components/admin/dashboard";
 
 const AdminPage = () => {
   return (
-    <div className="">
-      <Button className="" color="primary">Create New Item</Button>
+    <div className="p-6">
+      <DashboardComponent />
     </div>
   );
 }

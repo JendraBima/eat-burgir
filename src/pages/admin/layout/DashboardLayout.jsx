@@ -20,7 +20,7 @@ const DashboardLayout = (props) => {
         />
         <div className="h-screen w-full px-4 overflow-y-auto">
           <Navbar
-            className="flex justify-between bg-transparent px-0"
+            className="lg:hidden md:flex justify-between bg-transparent px-0"
             classNames={{ wrapper: "p-0" }}
             isBlurred={false}
             position="static"

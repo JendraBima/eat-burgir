@@ -82,11 +82,11 @@ const DashboardLayoutSidebar = ({ sidebarItems, isOpen }) => {
       </div>
       <div className="">
         {user && (
-          <div className="flex items-center justify-between gap-2 bg-orange-50 px-4 py-2 rounded-lg">
+          <div className="flex items-center justify-between gap-2 bg-orange-50 px-4 py-2 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors" onClick={() => navigate("/admin/profile")}>
             <div className="flex items-center gap-2">
-              {user.avatar ? (
+              {user.image ? (
                 <>
-                  <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-lg" />
+                  <img src={user.image} alt={user.name} className="w-8 h-8 rounded-lg" />
                 </>
               ) : (
                 <>
