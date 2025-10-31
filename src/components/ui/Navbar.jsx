@@ -1,18 +1,24 @@
 /* eslint-disable */
 import { motion } from "framer-motion";
 import { ShoppingCart, User } from "lucide-react";
+import { useEffect } from "react";
 import { Link } from "react-router";
 
 const Navbar = () => {
+
+    useEffect(() => {
+      
+    }, []);
+
   return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="fixed w-full bg-white shadow-sm py-4 px-6 flex items-center justify-between z-50"
+      className="fixed w-full h-20 bg-white shadow-sm py-4 px-6 flex items-center justify-between z-50"
     >
       <Link to="/" className="flex items-center">
-        <img src="/burgir.png" alt="icon" className="w-14 h-14" />
-        <span className="font-bold text-xl">
+        <img src="/eat_burgir.png" alt="icon" className="h-17 scale-170 object-contain" />
+        <span className="font-bold text-2xl">
           Eat<span className="text-[#D96F32]">Burgir</span>
         </span>
       </Link>
@@ -61,7 +67,7 @@ const Navbar = () => {
           <User className="w-6 h-6 text-gray-700 hover:text-orange-500 transition-colors" />
         </Link>
         <Link
-          to="/register"
+          to="/Register"
           className="bg-[#D96F32] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
         >
           Register

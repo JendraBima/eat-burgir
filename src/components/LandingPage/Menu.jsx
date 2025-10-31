@@ -56,7 +56,7 @@ export default function MenuPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="py-20 px-6 bg-white"
+        className="py-20 px-6 bg-white "
       >
         <div className="max-w-6xl mx-auto">
           <motion.div
@@ -64,12 +64,11 @@ export default function MenuPage() {
             animate={{ y: 0, opacity: 1 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">Our Menu</h1>
+            <h1 className="text-6xl font-bold text-[#D96F32] mb-4">Our Menu</h1>
             <p className="text-gray-600 max-w-3xl mx-auto">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent
-              ut fermentum lorem magna aliq convallis, at eleifendum eros
-              placerat lorem porttitor eget consectetur tortor nisl
-              pellentesque.
+              Setiap menu kami dibuat dari bahan segar pilihan dengan perpaduan
+              rasa yang seimbang. Kami mengutamakan kualitas di setiap
+              prosesnya, mulai dari pemilihan daging, dan sayuran.
             </p>
           </motion.div>
 
@@ -81,12 +80,12 @@ export default function MenuPage() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: index * 0.2 }}
                 whileHover={{ y: -5 }}
-                className="bg-white rounded-4xl shadow-xl drop-shadow-lg p-6"
+                className="bg-white rounded-4xl shadow-xl drop-shadow-lg p-6 hover:bg-[#F8B259] duration-300"
               >
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-80 mx-auto"
+                  className="w-100 h-80 mx-auto"
                 />
                 <h3 className="text-2xl font-bold text-center text-gray-800 mb-2">
                   {item.name}
