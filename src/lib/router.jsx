@@ -7,11 +7,21 @@ import DashboardLayout from "../pages/admin/layout/DashboardLayout";
 import ProductAdminPage from "../pages/admin/produk";
 import ProfilePage from "../pages/admin/profile";
 import ProtectedRoute from "../components/ProtectedRoute";
-
+import MenuPages from "../pages/LandingPage/MenuPages";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <LandingPages />,
+    element: 
+    <ProtectedRoute requireAdmin={false}>
+    <LandingPages />
+    </ProtectedRoute>
+  },
+  {
+    path: "/menu",
+    element: 
+      <ProtectedRoute requireAdmin={false}>
+        <MenuPages/>
+    </ProtectedRoute>
   },
   {
     path: "/login",

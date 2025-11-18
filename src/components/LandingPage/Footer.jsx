@@ -1,8 +1,31 @@
 /* eslint-disable */
-import { Link } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { Facebook, Instagram, Mail } from "lucide-react";
 
 const Footer = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Fungsi smooth scroll yang sama seperti navbar
+  const handleSmoothScroll = (e, targetId) => {
+    e.preventDefault();
+
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
   return (
     <footer className="bg-[#1E1E1E] text-white py-10 px-8 mt-20">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
@@ -21,34 +44,52 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-semibold mb-4">Menu Navigasi</h3>
           <ul className="space-y-2 text-gray-300">
+
+            {/* HOME */}
             <li>
-              <Link to="/" className="hover:text-[#D96F32] transition-colors">
+              <a
+                href="#home"
+                onClick={(e) => handleSmoothScroll(e, "home")}
+                className="hover:text-[#D96F32] transition-colors cursor-pointer"
+              >
                 Home
-              </Link>
+              </a>
             </li>
+
+            {/* MENU — tetap pakai route */}
             <li>
-              <Link
-                to="/menu"
-                className="hover:text-[#D96F32] transition-colors"
+              <a
+                href="/menu"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/menu");
+                }}
+                className="hover:text-[#D96F32] transition-colors cursor-pointer"
               >
                 Menu
-              </Link>
+              </a>
             </li>
+
+            {/* ABOUT */}
             <li>
-              <Link
-                to="/about"
-                className="hover:text-[#D96F32] transition-colors"
+              <a
+                href="#about"
+                onClick={(e) => handleSmoothScroll(e, "about")}
+                className="hover:text-[#D96F32] transition-colors cursor-pointer"
               >
                 About
-              </Link>
+              </a>
             </li>
+
+            {/* CONTACT */}
             <li>
-              <Link
-                to="/contact"
-                className="hover:text-[#D96F32] transition-colors"
+              <a
+                href="#contact"
+                onClick={(e) => handleSmoothScroll(e, "contact")}
+                className="hover:text-[#D96F32] transition-colors cursor-pointer"
               >
                 Contact
-              </Link>
+              </a>
             </li>
           </ul>
         </div>

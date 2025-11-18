@@ -26,7 +26,12 @@ const Login = () => {
     
     if (result.success) {
       toast.success(result.message);
-      router("/admin");
+      console.log("result", result)
+      if(result.data.role === "admin") {
+        router("/admin");
+      } else {
+        router("/");
+      }
     } else {
       toast.error(result.message);
     }

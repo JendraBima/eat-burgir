@@ -50,7 +50,6 @@ export const useProfile = () => {
 
     setSelectedFile(file);
     
-    // Preview image
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
@@ -78,7 +77,6 @@ export const useProfile = () => {
           name: formData.name,
           phone: formData.phone || "",
           address: formData.address || "",
-          image: profile?.image || "", // Kirim URL lama
         };
       }
 

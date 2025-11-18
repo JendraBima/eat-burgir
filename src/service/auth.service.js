@@ -9,9 +9,8 @@ export const authService = {
     return response.data;
   },
 
-  register: async (name, email, password) => {
+  register: async (email, password) => {
     const response = await apiClient.post("/register", {
-      name,
       email,
       password,
     });

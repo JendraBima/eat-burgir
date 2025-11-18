@@ -15,12 +15,18 @@ export const useAuthStore = create((set, get) => ({
         credentials.password
       );
       if (response.status) {
-        await get().checkAuth();
+        const userData =  await get().checkAuth();
 
-        set({ isLoading: false });
+        set({
+          isLoading: false,
+          isAuthenticated: !!userData,
+          user: userData || null,
+        });
+
         return {
           success: true,
           message: response.data.pesan || "Login berhasil",
+          data: userData,
         };
       } else {
         set({ isLoading: false });
@@ -56,7 +62,7 @@ export const useAuthStore = create((set, get) => ({
           isCheckingAuth: false,
         });
 
-        return true;
+        return userData;
       } else {
         set({ isCheckingAuth: false, isAuthenticated: false, user: null });
         return false;

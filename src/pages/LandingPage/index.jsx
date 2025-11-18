@@ -11,10 +11,16 @@ const LandingPages = () => {
   return (
     <>
       <Navbar />
-      <Hero />
+      <section id="home">
+        <Hero />
+      </section>
       <MenuPage />
-      <FeaturesPage />
-      <ContactUs />
+      <section id="about">
+        <FeaturesPage />
+      </section>
+      <section id="contact">
+        <ContactUs />
+      </section>
       <Footer/>
       {/* <Checkout/> */}
     </>

@@ -21,24 +21,13 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   if (requireAdmin && user?.role !== "admin") {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-2">Akses Ditolak</h1>
-          <p className="text-gray-600 mb-4">Anda tidak memiliki akses ke halaman ini.</p>
-          <button
-            onClick={() => navigate("/")}
-            className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-          >
-            Kembali ke Beranda
-          </button>
-        </div>
-      </div>
+      <Navigate to="/login" replace />
     );
   }
 

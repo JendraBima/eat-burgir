@@ -2,13 +2,13 @@
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import { toast } from "react-toastify";
-import { useApiClient } from "../../../helpers/ApiClient";
+import { authService } from "../../../service/auth.service";
 import { useNavigate } from "react-router";
 
 const Register = () => {
   const router = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [shoConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     nama: "",
     email: "",
@@ -16,8 +16,6 @@ const Register = () => {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
-
-  const API = useApiClient();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -33,24 +31,17 @@ const Register = () => {
     }
   
     try {
-
       const email = formData.email;
       const password = formData.password;
 
-      const insertData = {
-          email,
-          password
-      }
-
-    const res = await API.post("/register", insertData);
-
-    if(res.status === 200) {
+     await authService.register(email, password);
+   
       toast.success("Register Berhasil");
-      router("/");
-    }
+      router("/login");
+  
     setLoading(false);
     } catch (error) {
-      toast.error("Register Gagal, coba lagi!");
+      toast.error("Register Gagal, coba lagi!");  
       setLoading(false);
       console.error(error);
     }
@@ -136,7 +127,7 @@ const Register = () => {
             </label>
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
+                type={showConfirmPassword ? "text" : "password"}
                 id="confirmPassword"
                 name="confirmPassword"
                 value={formData.confirmPassword}
@@ -147,10 +138,10 @@ const Register = () => {
               />
               <button
                 type="button"
-                onClick={() => setShowConfirmPassword(!shoConfirmPassword)}
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute inset-y-0 right-4 text-gray-500"
               >
-                {shoConfirmPassword ? (
+                {showConfirmPassword ? (
                   <Eye className="size-5 text-black" />
                 ) : (
                   <EyeClosed className="size-5 text-black" />

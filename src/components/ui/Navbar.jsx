@@ -1,14 +1,81 @@
 /* eslint-disable */
 import { motion } from "framer-motion";
-import { ShoppingCart, User } from "lucide-react";
-import { useEffect } from "react";
-import { Link } from "react-router";
+import { ShoppingCart, User, LogOut } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { useAuthStore } from "../../store/use-auth";
+import { set } from "react-hook-form";
 
 const Navbar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pathname = location.pathname;
+  const { user, logout } = useAuthStore();
 
-    useEffect(() => {
-      
-    }, []);
+  // Active section state
+  const [activeSection, setActiveSection] = useState("home");
+
+  // Detect scroll section
+  useEffect(() => {
+
+    if(pathname !== "/") setActiveSection("");
+
+    const handleScroll = () => {
+      const sections = ["home", "menu" ,"about", "contact"];
+
+      sections.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const rect = el.getBoundingClientRect();
+        const isVisible = rect.top <= 150 && rect.bottom >= 150;
+
+        if (isVisible) setActiveSection(id);
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // For checking active link
+  const isActive = (path) => location.pathname === path;
+
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleSmoothScroll = (e, targetId) => {
+    e.preventDefault();
+
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById(targetId);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    } else {
+      const el = document.getElementById(targetId);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setShowDropdown(false);
+    navigate("/login");
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <motion.nav
@@ -25,26 +92,51 @@ const Navbar = () => {
 
       <div className="hidden md:flex items-center gap-8">
         <Link
-          to="/"
-          className="text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors"
+          to="#home"
+          onClick={(e) => handleSmoothScroll(e, "home")}
+          className={`text-sm font-medium transition-colors ${
+            activeSection === "home"
+              ? "text-orange-500 font-semibold border-b-2 border-orange-500 pb-1"
+              : "text-gray-700 hover:text-orange-500"
+          }`}
         >
           Home
         </Link>
+
+        {/* MENU */}
         <Link
           to="/menu"
-          className="text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors"
+          className={`text-sm font-medium transition-colors ${
+            isActive("/menu")
+              ? "text-orange-500 font-semibold border-b-2 border-orange-500 pb-1"
+              : "text-gray-700 hover:text-orange-500"
+          }`}
         >
           Menu
         </Link>
+
+        {/* ABOUT */}
         <Link
-          to="/about"
-          className="text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors"
+          to="#about"
+          onClick={(e) => handleSmoothScroll(e, "about")}
+          className={`text-sm font-medium transition-colors ${
+            activeSection === "about"
+              ? "text-orange-500 font-semibold border-b-2 border-orange-500 pb-1"
+              : "text-gray-700 hover:text-orange-500"
+          }`}
         >
           About
         </Link>
+
+        {/* CONTACT */}
         <Link
-          to="/contact"
-          className="text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors"
+          to="#contact"
+          onClick={(e) => handleSmoothScroll(e, "contact")}
+          className={`text-sm font-medium transition-colors ${
+            activeSection === "contact"
+              ? "text-orange-500 font-semibold border-b-2 border-orange-500 pb-1"
+              : "text-gray-700 hover:text-orange-500"
+          }`}
         >
           Contact
         </Link>
@@ -53,25 +145,53 @@ const Navbar = () => {
       <div className="flex items-center gap-4">
         <Link to="/cart" className="relative">
           <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-orange-500 transition-colors" />
-          {/* {state.items.length > 0 && (
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+        </Link>
+
+        {user ? (
+          <div className="relative" ref={dropdownRef}>
+            <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center gap-2">
+              <img
+                src={user.image || "/default-avatar.png"}
+                alt={user.name || "User"}
+                className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 hover:border-orange-500 transition-colors cursor-pointer"
+              />
+            </button>
+
+            {showDropdown && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-100"
+              >
+                <div className="px-4 py-2 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-800">{user.name || "User"}</p>
+                  <p className="text-xs text-gray-500">{user.email || ""}</p>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </motion.div>
+            )}
+          </div>
+        ) : (
+          <>
+            <Link to="/login">
+              <User className="w-6 h-6 text-gray-700 hover:text-orange-500 transition-colors" />
+            </Link>
+
+            <Link
+              to="/Register"
+              className="bg-[#D96F32] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
             >
-              {state.items.reduce((sum, item) => sum + item.quantity, 0)}
-            </motion.span>
-          )} */}
-        </Link>
-        <Link to="/login">
-          <User className="w-6 h-6 text-gray-700 hover:text-orange-500 transition-colors" />
-        </Link>
-        <Link
-          to="/Register"
-          className="bg-[#D96F32] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
-        >
-          Register
-        </Link>
+              Register
+            </Link>
+          </>
+        )}
       </div>
     </motion.nav>
   );
