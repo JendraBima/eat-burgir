@@ -7,23 +7,23 @@ import {
   TableCell,
   Button,
   Pagination,
-  Image,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Chip,
 } from "@heroui/react";
 import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import { useState } from "react";
-import { useProductManagement } from "../../../hooks/useProductManagement";
-import ProductModal from "./ProductModal";
-import ProductTableSkeleton from "./ProductTableSkeleton";
+import { usePesananManagement } from "../../../hooks/usePesananManagement";
+import PesananModal from "./PesananModal";
+import PesananTableSkeleton from "./PesananTableSkeleton";
 import ConfirmModal from "../../ConfirmModal";
 
-const ProductComponent = () => {
+const PesananComponent = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewingProduct, setViewingProduct] = useState(null);
+  const [viewingPesanan, setViewingPesanan] = useState(null);
 
   const {
     items,
@@ -33,29 +33,28 @@ const ProductComponent = () => {
     setPage,
     isModalOpen,
     modalMode,
-    selectedProduct,
+    selectedPesanan,
     openCreateModal,
     openEditModal,
     closeModal,
     handleSubmit,
     isSubmitting,
-    // Delete modal
     isDeleteModalOpen,
-    productToDelete,
+    pesananToDelete,
     isDeleting,
     openDeleteModal,
     closeDeleteModal,
-    confirmDeleteProduct,
-  } = useProductManagement();
+    confirmDeletePesanan,
+  } = usePesananManagement();
 
-  const openViewModal = (product) => {
-    setViewingProduct(product);
+  const openViewModal = (pesanan) => {
+    setViewingPesanan(pesanan);
     setIsViewModalOpen(true);
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
-    setViewingProduct(null);
+    setViewingPesanan(null);
   };
 
   const formatCurrency = (value) => {
@@ -66,36 +65,44 @@ const ProductComponent = () => {
     }).format(value);
   };
 
-  const renderCell = (product, columnKey) => {
-    const cellValue = product[columnKey];
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "completed":
+        return "success";
+      case "pending":
+        return "warning";
+      case "cancelled":
+        return "danger";
+      default:
+        return "default";
+    }
+  };
+
+  const renderCell = (pesanan, columnKey) => {
+    const cellValue = pesanan[columnKey];
 
     switch (columnKey) {
-      case "image":
+      case "status":
         return (
-          <Image
-            src={cellValue || "/placeholder-product.png"}
-            alt={product.name}
-            width={64}
-            height={64}
-            className="object-cover rounded-lg"
-          />
+          <Chip
+            color={getStatusColor(cellValue)}
+            variant="flat"
+            size="sm"
+          >
+            {cellValue}
+          </Chip>
         );
-      case "name":
-        return (
-          <div className="flex flex-col">
-            <p className="font-semibold">{cellValue}</p>
-          </div>
-        );
-      case "description":
-        return (
-          <div className="max-w-xs">
-            <p className="text-sm text-gray-600 truncate">{cellValue || "-"}</p>
-          </div>
-        );
-      case "price":
+      case "total_amount":
         return (
           <div className="flex flex-col">
             <p className="font-medium">{formatCurrency(cellValue)}</p>
+          </div>
+        );
+      case "user":
+        return (
+          <div className="flex flex-col">
+            <p className="font-semibold">{pesanan.users?.name || "-"}</p>
+            <p className="text-sm text-gray-600">{pesanan.users?.phone || "-"}</p>
           </div>
         );
       case "actions":
@@ -106,7 +113,7 @@ const ProductComponent = () => {
               color="default"
               variant="flat"
               startContent={<Eye size={16} />}
-              onPress={() => openViewModal(product)}
+              onPress={() => openViewModal(pesanan)}
             >
               Lihat
             </Button>
@@ -115,7 +122,7 @@ const ProductComponent = () => {
               color="primary"
               variant="flat"
               startContent={<Pencil size={16} />}
-              onPress={() => openEditModal(product)}
+              onPress={() => openEditModal(pesanan)}
             >
               Edit
             </Button>
@@ -124,7 +131,7 @@ const ProductComponent = () => {
               color="danger"
               variant="flat"
               startContent={<Trash2 size={16} />}
-              onPress={() => openDeleteModal(product)}
+              onPress={() => openDeleteModal(pesanan)}
             >
               Hapus
             </Button>
@@ -139,24 +146,24 @@ const ProductComponent = () => {
     <div className="w-full space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Manajemen Produk</h1>
-          <p className="text-gray-600">Kelola produk yang tersedia di toko</p>
+          <h1 className="text-2xl font-bold">Manajemen Pesanan</h1>
+          <p className="text-gray-600">Kelola semua pesanan pelanggan</p>
         </div>
         <Button
           color="primary"
           startContent={<Plus size={20} />}
           onPress={openCreateModal}
         >
-          Tambah Produk
+          Tambah Pesanan
         </Button>
       </div>
 
       {loading ? (
-        <ProductTableSkeleton />
+        <PesananTableSkeleton />
       ) : (
         <>
           <Table
-            aria-label="Product table"
+            aria-label="Pesanan table"
             bottomContent={
               pages > 1 ? (
                 <div className="flex w-full justify-center">
@@ -174,24 +181,23 @@ const ProductComponent = () => {
             }
           >
             <TableHeader>
-              <TableColumn key="image">GAMBAR</TableColumn>
-              <TableColumn key="name">NAMA</TableColumn>
-              <TableColumn key="description">DESKRIPSI</TableColumn>
-              <TableColumn key="price">HARGA</TableColumn>
+              <TableColumn key="user">PENGGUNA</TableColumn>
+              <TableColumn key="status">STATUS</TableColumn>
+              <TableColumn key="total_amount">TOTAL</TableColumn>
               <TableColumn key="actions">AKSI</TableColumn>
             </TableHeader>
             <TableBody
               items={items}
               emptyContent={
                 <div className="text-center py-10">
-                  <p className="text-gray-500">Belum ada produk</p>
+                  <p className="text-gray-500">Belum ada pesanan</p>
                   <Button
                     color="primary"
                     variant="flat"
                     className="mt-4"
                     onPress={openCreateModal}
                   >
-                    Tambah Produk Pertama
+                    Tambah Pesanan Pertama
                   </Button>
                 </div>
               }
@@ -208,21 +214,21 @@ const ProductComponent = () => {
         </>
       )}
 
-      <ProductModal
+      <PesananModal
         isOpen={isModalOpen}
         onClose={closeModal}
         onSubmit={handleSubmit}
         mode={modalMode}
-        product={selectedProduct}
+        pesanan={selectedPesanan}
         isSubmitting={isSubmitting}
       />
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
-        onConfirm={confirmDeleteProduct}
-        title="Hapus Produk"
-        message={`Apakah Anda yakin ingin menghapus produk "${productToDelete?.name}"? Tindakan ini tidak dapat dibatalkan.`}
+        onConfirm={confirmDeletePesanan}
+        title="Hapus Pesanan"
+        message={`Apakah Anda yakin ingin menghapus pesanan ini? Tindakan ini tidak dapat dibatalkan.`}
         confirmText="Hapus"
         cancelText="Batal"
         confirmColor="danger"
@@ -232,46 +238,38 @@ const ProductComponent = () => {
       <Modal isOpen={isViewModalOpen} onOpenChange={closeViewModal} size="lg">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            Detail Produk
+            Detail Pesanan
           </ModalHeader>
           <ModalBody>
-            {viewingProduct && (
+            {viewingPesanan && (
               <div className="space-y-4">
                 <div>
-                  <Image
-                    src={viewingProduct.image || "/placeholder-product.png"}
-                    alt={viewingProduct.name}
-                    width={300}
-                    height={300}
-                    className="object-cover rounded-lg w-full"
-                  />
+                  <p className="text-sm text-gray-600">Nama Pengguna</p>
+                  <p className="text-lg font-semibold">{viewingPesanan.users?.name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Nama Produk</p>
-                  <p className="text-lg font-semibold">{viewingProduct.name}</p>
+                  <p className="text-sm text-gray-600">No. Telepon</p>
+                  <p className="text-base">{viewingPesanan.users?.phone || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Deskripsi</p>
-                  <p className="text-base">{viewingProduct.description || "-"}</p>
+                  <p className="text-sm text-gray-600">Alamat</p>
+                  <p className="text-base">{viewingPesanan.users?.address || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Harga</p>
+                  <p className="text-sm text-gray-600">Status</p>
+                  <Chip
+                    color={getStatusColor(viewingPesanan.status)}
+                    variant="flat"
+                  >
+                    {viewingPesanan.status}
+                  </Chip>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Total Pesanan</p>
                   <p className="text-lg font-semibold text-green-600">
-                    {formatCurrency(viewingProduct.price)}
+                    {formatCurrency(viewingPesanan.total_amount)}
                   </p>
                 </div>
-                {viewingProduct.category && (
-                  <div>
-                    <p className="text-sm text-gray-600">Kategori</p>
-                    <p className="text-base">{viewingProduct.category}</p>
-                  </div>
-                )}
-                {viewingProduct.stock !== undefined && (
-                  <div>
-                    <p className="text-sm text-gray-600">Stok</p>
-                    <p className="text-base font-semibold">{viewingProduct.stock}</p>
-                  </div>
-                )}
               </div>
             )}
           </ModalBody>
@@ -286,4 +284,4 @@ const ProductComponent = () => {
   );
 };
 
-export default ProductComponent;
+export default PesananComponent;

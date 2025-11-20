@@ -7,23 +7,23 @@ import {
   TableCell,
   Button,
   Pagination,
-  Image,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Chip,
 } from "@heroui/react";
-import { Plus, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Star } from "lucide-react";
 import { useState } from "react";
-import { useProductManagement } from "../../../hooks/useProductManagement";
-import ProductModal from "./ProductModal";
-import ProductTableSkeleton from "./ProductTableSkeleton";
+import { useReviewManagement } from "../../../hooks/useReviewManagement";
+import ReviewModal from "./ReviewModal";
+import ReviewTableSkeleton from "./ReviewTableSkeleton";
 import ConfirmModal from "../../ConfirmModal";
 
-const ProductComponent = () => {
+const ReviewComponent = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewingProduct, setViewingProduct] = useState(null);
+  const [viewingReview, setViewingReview] = useState(null);
 
   const {
     items,
@@ -33,69 +33,70 @@ const ProductComponent = () => {
     setPage,
     isModalOpen,
     modalMode,
-    selectedProduct,
+    selectedReview,
     openCreateModal,
     openEditModal,
     closeModal,
     handleSubmit,
     isSubmitting,
-    // Delete modal
     isDeleteModalOpen,
-    productToDelete,
+    reviewToDelete,
     isDeleting,
     openDeleteModal,
     closeDeleteModal,
-    confirmDeleteProduct,
-  } = useProductManagement();
+    confirmDeleteReview,
+  } = useReviewManagement();
 
-  const openViewModal = (product) => {
-    setViewingProduct(product);
+  const openViewModal = (review) => {
+    setViewingReview(review);
     setIsViewModalOpen(true);
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
-    setViewingProduct(null);
+    setViewingReview(null);
   };
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
+  const renderStars = (rating) => {
+    return (
+      <div className="flex gap-1">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            size={16}
+            className={i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}
+          />
+        ))}
+      </div>
+    );
   };
 
-  const renderCell = (product, columnKey) => {
-    const cellValue = product[columnKey];
+  const renderCell = (review, columnKey) => {
+    const cellValue = review[columnKey];
 
     switch (columnKey) {
-      case "image":
-        return (
-          <Image
-            src={cellValue || "/placeholder-product.png"}
-            alt={product.name}
-            width={64}
-            height={64}
-            className="object-cover rounded-lg"
-          />
-        );
-      case "name":
+      case "product":
         return (
           <div className="flex flex-col">
-            <p className="font-semibold">{cellValue}</p>
+            <p className="font-semibold">{review.products?.name || "-"}</p>
           </div>
         );
-      case "description":
+      case "user":
         return (
-          <div className="max-w-xs">
+          <div className="flex flex-col">
+            <p className="font-semibold">{review.users?.name || "-"}</p>
+          </div>
+        );
+      case "rating":
+        return (
+          <div className="flex flex-col">
+            {renderStars(cellValue)}
+          </div>
+        );
+      case "review":
+        return (
+          <div className="flex flex-col max-w-xs">
             <p className="text-sm text-gray-600 truncate">{cellValue || "-"}</p>
-          </div>
-        );
-      case "price":
-        return (
-          <div className="flex flex-col">
-            <p className="font-medium">{formatCurrency(cellValue)}</p>
           </div>
         );
       case "actions":
@@ -106,7 +107,7 @@ const ProductComponent = () => {
               color="default"
               variant="flat"
               startContent={<Eye size={16} />}
-              onPress={() => openViewModal(product)}
+              onPress={() => openViewModal(review)}
             >
               Lihat
             </Button>
@@ -115,7 +116,7 @@ const ProductComponent = () => {
               color="primary"
               variant="flat"
               startContent={<Pencil size={16} />}
-              onPress={() => openEditModal(product)}
+              onPress={() => openEditModal(review)}
             >
               Edit
             </Button>
@@ -124,7 +125,7 @@ const ProductComponent = () => {
               color="danger"
               variant="flat"
               startContent={<Trash2 size={16} />}
-              onPress={() => openDeleteModal(product)}
+              onPress={() => openDeleteModal(review)}
             >
               Hapus
             </Button>
@@ -139,24 +140,24 @@ const ProductComponent = () => {
     <div className="w-full space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Manajemen Produk</h1>
-          <p className="text-gray-600">Kelola produk yang tersedia di toko</p>
+          <h1 className="text-2xl font-bold">Manajemen Review</h1>
+          <p className="text-gray-600">Kelola review produk dari pelanggan</p>
         </div>
         <Button
           color="primary"
           startContent={<Plus size={20} />}
           onPress={openCreateModal}
         >
-          Tambah Produk
+          Tambah Review
         </Button>
       </div>
 
       {loading ? (
-        <ProductTableSkeleton />
+        <ReviewTableSkeleton />
       ) : (
         <>
           <Table
-            aria-label="Product table"
+            aria-label="Review table"
             bottomContent={
               pages > 1 ? (
                 <div className="flex w-full justify-center">
@@ -174,24 +175,24 @@ const ProductComponent = () => {
             }
           >
             <TableHeader>
-              <TableColumn key="image">GAMBAR</TableColumn>
-              <TableColumn key="name">NAMA</TableColumn>
-              <TableColumn key="description">DESKRIPSI</TableColumn>
-              <TableColumn key="price">HARGA</TableColumn>
+              <TableColumn key="product">PRODUK</TableColumn>
+              <TableColumn key="user">PENGGUNA</TableColumn>
+              <TableColumn key="rating">RATING</TableColumn>
+              <TableColumn key="review">REVIEW</TableColumn>
               <TableColumn key="actions">AKSI</TableColumn>
             </TableHeader>
             <TableBody
               items={items}
               emptyContent={
                 <div className="text-center py-10">
-                  <p className="text-gray-500">Belum ada produk</p>
+                  <p className="text-gray-500">Belum ada review</p>
                   <Button
                     color="primary"
                     variant="flat"
                     className="mt-4"
                     onPress={openCreateModal}
                   >
-                    Tambah Produk Pertama
+                    Tambah Review Pertama
                   </Button>
                 </div>
               }
@@ -208,21 +209,21 @@ const ProductComponent = () => {
         </>
       )}
 
-      <ProductModal
+      <ReviewModal
         isOpen={isModalOpen}
         onClose={closeModal}
         onSubmit={handleSubmit}
         mode={modalMode}
-        product={selectedProduct}
+        review={selectedReview}
         isSubmitting={isSubmitting}
       />
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
-        onConfirm={confirmDeleteProduct}
-        title="Hapus Produk"
-        message={`Apakah Anda yakin ingin menghapus produk "${productToDelete?.name}"? Tindakan ini tidak dapat dibatalkan.`}
+        onConfirm={confirmDeleteReview}
+        title="Hapus Review"
+        message={`Apakah Anda yakin ingin menghapus review ini? Tindakan ini tidak dapat dibatalkan.`}
         confirmText="Hapus"
         cancelText="Batal"
         confirmColor="danger"
@@ -232,46 +233,31 @@ const ProductComponent = () => {
       <Modal isOpen={isViewModalOpen} onOpenChange={closeViewModal} size="lg">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            Detail Produk
+            Detail Review
           </ModalHeader>
           <ModalBody>
-            {viewingProduct && (
+            {viewingReview && (
               <div className="space-y-4">
                 <div>
-                  <Image
-                    src={viewingProduct.image || "/placeholder-product.png"}
-                    alt={viewingProduct.name}
-                    width={300}
-                    height={300}
-                    className="object-cover rounded-lg w-full"
-                  />
+                  <p className="text-sm text-gray-600">Produk</p>
+                  <p className="text-lg font-semibold">{viewingReview.products?.name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Nama Produk</p>
-                  <p className="text-lg font-semibold">{viewingProduct.name}</p>
+                  <p className="text-sm text-gray-600">Pengguna</p>
+                  <p className="text-base">{viewingReview.users?.name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Deskripsi</p>
-                  <p className="text-base">{viewingProduct.description || "-"}</p>
+                  <p className="text-sm text-gray-600">Rating</p>
+                  <div className="mt-2">
+                    {renderStars(viewingReview.rating)}
+                  </div>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Harga</p>
-                  <p className="text-lg font-semibold text-green-600">
-                    {formatCurrency(viewingProduct.price)}
+                  <p className="text-sm text-gray-600">Review</p>
+                  <p className="text-base mt-2 p-3 bg-gray-100 rounded-lg">
+                    {viewingReview.review || "-"}
                   </p>
                 </div>
-                {viewingProduct.category && (
-                  <div>
-                    <p className="text-sm text-gray-600">Kategori</p>
-                    <p className="text-base">{viewingProduct.category}</p>
-                  </div>
-                )}
-                {viewingProduct.stock !== undefined && (
-                  <div>
-                    <p className="text-sm text-gray-600">Stok</p>
-                    <p className="text-base font-semibold">{viewingProduct.stock}</p>
-                  </div>
-                )}
               </div>
             )}
           </ModalBody>
@@ -286,4 +272,4 @@ const ProductComponent = () => {
   );
 };
 
-export default ProductComponent;
+export default ReviewComponent;

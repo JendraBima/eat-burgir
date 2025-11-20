@@ -1,78 +1,44 @@
 import { motion } from "framer-motion";
-import { ShoppingCart, Search, SlidersHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
-
-const menuItems = [
-  {
-    id: "1",
-    name: "Burgir OG",
-    price: 30000,
-    image: "/burgir-menu.png",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-    rating: 5,
-    reviews: 127,
-    category: "Burger",
-  },
-  {
-    id: "2",
-    name: "Burgir Cheese",
-    price: 35000,
-    image: "/burgir-menu.png",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-    rating: 5,
-    reviews: 98,
-    category: "Burger",
-  },
-  {
-    id: "3",
-    name: "Burgir Deluxe",
-    price: 45000,
-    image: "/burgir-menu.png",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-    rating: 4,
-    reviews: 156,
-    category: "Burger",
-  },
-  {
-    id: "4",
-    name: "Fries Classic",
-    price: 15000,
-    image: "/burgir-menu.png",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-    rating: 5,
-    reviews: 203,
-    category: "Sides",
-  },
-];
-
-const categories = ["Semua", "Burger", "Sides", "Drinks", "Dessert"];
-const priceRanges = [
-  { label: "Semua Harga", min: 0, max: Infinity },
-  { label: "< Rp 20.000", min: 0, max: 20000 },
-  { label: "Rp 20.000 - Rp 40.000", min: 20000, max: 40000 },
-  { label: "> Rp 40.000", min: 40000, max: Infinity },
-];
+import { ShoppingCart, Search, SlidersHorizontal, Loader } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+import { useMenuManagement } from "../../../hooks/useMenuManagement";
+import { useCartUser } from "../../../hooks/useCartUser";
+import { Skeleton } from "@heroui/react";
 
 const MenuComponent = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
-  const [selectedPriceRange, setSelectedPriceRange] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+  const {
+    filteredProducts,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    selectedPriceRange,
+    setSelectedPriceRange,
+    priceRanges,
+    categories,
+    resetFilters,
+  } = useMenuManagement();
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [])
+  const { addToCart, isLoggedIn } = useCartUser();
 
-  const filteredItems = menuItems.filter((item) => {
-    const matchCategory = selectedCategory === "Semua" || item.category === selectedCategory;
-    const matchPrice = item.price >= priceRanges[selectedPriceRange].min && 
-                       item.price <= priceRanges[selectedPriceRange].max;
-    const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCategory && matchPrice && matchSearch;
-  });
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handleAddToCart = async (productId) => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+    await addToCart(productId, 1);
+  };
+
+  const handleProductClick = (productId) => {
+    navigate(`/menu/${productId}`);
+  };
 
   return (
     <div className="min-h-screen pt-20">
@@ -114,27 +80,7 @@ const MenuComponent = () => {
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label className="text-sm font-semibold text-gray-700 mb-3 block">
-                  Kategori
-                </label>
-                <div className="space-y-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                        selectedCategory === category
-                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg"
-                          : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
+           
               <div className="mb-6">
                 <label className="text-sm font-semibold text-gray-700 mb-3 block">
                   Rentang Harga
@@ -169,75 +115,107 @@ const MenuComponent = () => {
           </div>
 
           <div className="lg:col-span-3">
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ y: 50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -4, boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }}
-                  className="bg-white rounded-3xl overflow-hidden shadow-lg group"
-                >
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
-                      <span className="text-xs font-semibold text-orange-600">{item.category}</span>
+            {loading ? (
+              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-3xl overflow-hidden shadow-lg">
+                    <Skeleton className="w-full h-48 rounded-none" />
+                    <div className="p-6 space-y-4">
+                      <Skeleton className="h-6 w-3/4 rounded-lg" />
+                      <Skeleton className="h-4 w-full rounded-lg" />
+                      <Skeleton className="h-4 w-2/3 rounded-lg" />
+                      <div className="flex justify-between items-end">
+                        <Skeleton className="h-8 w-1/3 rounded-lg" />
+                        <Skeleton className="h-10 w-10 rounded-xl" />
+                      </div>
                     </div>
                   </div>
-
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">
-                      {item.name}
-                    </h3>
-                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                      {item.description}
-                    </p>
-
-                    <div className="flex items-center mb-4">
-                      <div className="flex text-amber-400">
-                        {[...Array(5)].map((_, i) => (
-                          <span
-                            key={i}
-                            className={`text-lg ${i < item.rating ? "opacity-100" : "opacity-30"}`}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                      <span className="text-gray-400 text-xs ml-2">
-                        ({item.reviews})
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div>
-                        <span className="text-xs text-gray-500 block">Harga</span>
-                        <span className="text-2xl font-bold text-orange-500">
-                          Rp {item.price.toLocaleString()}
-                        </span>
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
-                      >
-                        <ShoppingCart size={20} />
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {filteredItems.length === 0 && (
-              <div className="text-center py-20">
-                <p className="text-gray-400 text-lg">Tidak ada menu yang sesuai dengan filter</p>
+                ))}
               </div>
+            ) : (
+              <>
+                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filteredProducts.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ y: 50, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -4, boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }}
+                      className="bg-white rounded-3xl overflow-hidden shadow-lg group cursor-pointer"
+                    >
+                      <div
+                        className="relative overflow-hidden"
+                        onClick={() => handleProductClick(item.id)}
+                      >
+                        <img
+                          src={item.image || "/placeholder-product.png"}
+                          alt={item.name}
+                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
+                          <span className="text-xs font-semibold text-orange-600">
+                            {item.category || "Produk"}
+                          </span>
+                        </div>
+                        {item.stock === 0 && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">Habis</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">
+                          {item.name}
+                        </h3>
+                        <p className="text-gray-500 text-sm mb-4 line-clamp-2">
+                          {item.description || "Produk berkualitas tinggi"}
+                        </p>
+
+                        <div className="flex items-center mb-4">
+                          <div className="flex text-amber-400">
+                            {[...Array(5)].map((_, i) => (
+                              <span key={i} className="text-lg">
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                          <span className="text-gray-400 text-xs ml-2">
+                            (0 ulasan)
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div>
+                            <span className="text-xs text-gray-500 block">Harga</span>
+                            <span className="text-2xl font-bold text-orange-500">
+                              Rp {item.price?.toLocaleString() || "0"}
+                            </span>
+                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleAddToCart(item.id)}
+                            disabled={item.stock === 0}
+                            className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <ShoppingCart size={20} />
+                          </motion.button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {filteredProducts.length === 0 && (
+                  <div className="text-center py-20">
+                    <p className="text-gray-400 text-lg">
+                      Tidak ada menu yang sesuai dengan filter
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

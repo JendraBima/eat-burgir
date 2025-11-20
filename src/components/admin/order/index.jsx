@@ -7,23 +7,23 @@ import {
   TableCell,
   Button,
   Pagination,
-  Image,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Chip,
 } from "@heroui/react";
 import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import { useState } from "react";
-import { useProductManagement } from "../../../hooks/useProductManagement";
-import ProductModal from "./ProductModal";
-import ProductTableSkeleton from "./ProductTableSkeleton";
+import { useOrderManagement } from "../../../hooks/useOrderManagement";
+import OrderModal from "./OrderModal";
+import OrderTableSkeleton from "./OrderTableSkeleton";
 import ConfirmModal from "../../ConfirmModal";
 
-const ProductComponent = () => {
+const OrderComponent = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewingProduct, setViewingProduct] = useState(null);
+  const [viewingOrder, setViewingOrder] = useState(null);
 
   const {
     items,
@@ -33,29 +33,28 @@ const ProductComponent = () => {
     setPage,
     isModalOpen,
     modalMode,
-    selectedProduct,
+    selectedOrder,
     openCreateModal,
     openEditModal,
     closeModal,
     handleSubmit,
     isSubmitting,
-    // Delete modal
     isDeleteModalOpen,
-    productToDelete,
+    orderToDelete,
     isDeleting,
     openDeleteModal,
     closeDeleteModal,
-    confirmDeleteProduct,
-  } = useProductManagement();
+    confirmDeleteOrder,
+  } = useOrderManagement();
 
-  const openViewModal = (product) => {
-    setViewingProduct(product);
+  const openViewModal = (order) => {
+    setViewingOrder(order);
     setIsViewModalOpen(true);
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
-    setViewingProduct(null);
+    setViewingOrder(null);
   };
 
   const formatCurrency = (value) => {
@@ -66,36 +65,36 @@ const ProductComponent = () => {
     }).format(value);
   };
 
-  const renderCell = (product, columnKey) => {
-    const cellValue = product[columnKey];
+  const renderCell = (order, columnKey) => {
+    const cellValue = order[columnKey];
 
     switch (columnKey) {
-      case "image":
-        return (
-          <Image
-            src={cellValue || "/placeholder-product.png"}
-            alt={product.name}
-            width={64}
-            height={64}
-            className="object-cover rounded-lg"
-          />
-        );
-      case "name":
+      case "product":
         return (
           <div className="flex flex-col">
-            <p className="font-semibold">{cellValue}</p>
+            <p className="font-semibold">{order.products?.name || "-"}</p>
           </div>
         );
-      case "description":
-        return (
-          <div className="max-w-xs">
-            <p className="text-sm text-gray-600 truncate">{cellValue || "-"}</p>
-          </div>
-        );
-      case "price":
+      case "quantity":
         return (
           <div className="flex flex-col">
-            <p className="font-medium">{formatCurrency(cellValue)}</p>
+            <p className="font-medium">{cellValue}</p>
+          </div>
+        );
+      case "status":
+        return (
+          <Chip
+            color={order.pesanan?.status === "completed" ? "success" : "warning"}
+            variant="flat"
+            size="sm"
+          >
+            {order.pesanan?.status || "-"}
+          </Chip>
+        );
+      case "total":
+        return (
+          <div className="flex flex-col">
+            <p className="font-medium">{formatCurrency(order.pesanan?.total_amount || 0)}</p>
           </div>
         );
       case "actions":
@@ -106,7 +105,7 @@ const ProductComponent = () => {
               color="default"
               variant="flat"
               startContent={<Eye size={16} />}
-              onPress={() => openViewModal(product)}
+              onPress={() => openViewModal(order)}
             >
               Lihat
             </Button>
@@ -115,7 +114,7 @@ const ProductComponent = () => {
               color="primary"
               variant="flat"
               startContent={<Pencil size={16} />}
-              onPress={() => openEditModal(product)}
+              onPress={() => openEditModal(order)}
             >
               Edit
             </Button>
@@ -124,7 +123,7 @@ const ProductComponent = () => {
               color="danger"
               variant="flat"
               startContent={<Trash2 size={16} />}
-              onPress={() => openDeleteModal(product)}
+              onPress={() => openDeleteModal(order)}
             >
               Hapus
             </Button>
@@ -139,24 +138,24 @@ const ProductComponent = () => {
     <div className="w-full space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Manajemen Produk</h1>
-          <p className="text-gray-600">Kelola produk yang tersedia di toko</p>
+          <h1 className="text-2xl font-bold">Manajemen Order</h1>
+          <p className="text-gray-600">Kelola order items dari pesanan</p>
         </div>
         <Button
           color="primary"
           startContent={<Plus size={20} />}
           onPress={openCreateModal}
         >
-          Tambah Produk
+          Tambah Order
         </Button>
       </div>
 
       {loading ? (
-        <ProductTableSkeleton />
+        <OrderTableSkeleton />
       ) : (
         <>
           <Table
-            aria-label="Product table"
+            aria-label="Order table"
             bottomContent={
               pages > 1 ? (
                 <div className="flex w-full justify-center">
@@ -174,24 +173,24 @@ const ProductComponent = () => {
             }
           >
             <TableHeader>
-              <TableColumn key="image">GAMBAR</TableColumn>
-              <TableColumn key="name">NAMA</TableColumn>
-              <TableColumn key="description">DESKRIPSI</TableColumn>
-              <TableColumn key="price">HARGA</TableColumn>
+              <TableColumn key="product">PRODUK</TableColumn>
+              <TableColumn key="quantity">JUMLAH</TableColumn>
+              <TableColumn key="status">STATUS</TableColumn>
+              <TableColumn key="total">TOTAL</TableColumn>
               <TableColumn key="actions">AKSI</TableColumn>
             </TableHeader>
             <TableBody
               items={items}
               emptyContent={
                 <div className="text-center py-10">
-                  <p className="text-gray-500">Belum ada produk</p>
+                  <p className="text-gray-500">Belum ada order</p>
                   <Button
                     color="primary"
                     variant="flat"
                     className="mt-4"
                     onPress={openCreateModal}
                   >
-                    Tambah Produk Pertama
+                    Tambah Order Pertama
                   </Button>
                 </div>
               }
@@ -208,21 +207,21 @@ const ProductComponent = () => {
         </>
       )}
 
-      <ProductModal
+      <OrderModal
         isOpen={isModalOpen}
         onClose={closeModal}
         onSubmit={handleSubmit}
         mode={modalMode}
-        product={selectedProduct}
+        order={selectedOrder}
         isSubmitting={isSubmitting}
       />
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
-        onConfirm={confirmDeleteProduct}
-        title="Hapus Produk"
-        message={`Apakah Anda yakin ingin menghapus produk "${productToDelete?.name}"? Tindakan ini tidak dapat dibatalkan.`}
+        onConfirm={confirmDeleteOrder}
+        title="Hapus Order"
+        message={`Apakah Anda yakin ingin menghapus order ini? Tindakan ini tidak dapat dibatalkan.`}
         confirmText="Hapus"
         cancelText="Batal"
         confirmColor="danger"
@@ -232,46 +231,38 @@ const ProductComponent = () => {
       <Modal isOpen={isViewModalOpen} onOpenChange={closeViewModal} size="lg">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            Detail Produk
+            Detail Order
           </ModalHeader>
           <ModalBody>
-            {viewingProduct && (
+            {viewingOrder && (
               <div className="space-y-4">
                 <div>
-                  <Image
-                    src={viewingProduct.image || "/placeholder-product.png"}
-                    alt={viewingProduct.name}
-                    width={300}
-                    height={300}
-                    className="object-cover rounded-lg w-full"
-                  />
+                  <p className="text-sm text-gray-600">Produk</p>
+                  <p className="text-lg font-semibold">{viewingOrder.products?.name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Nama Produk</p>
-                  <p className="text-lg font-semibold">{viewingProduct.name}</p>
+                  <p className="text-sm text-gray-600">Jumlah</p>
+                  <p className="text-base font-semibold">{viewingOrder.quantity}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Deskripsi</p>
-                  <p className="text-base">{viewingProduct.description || "-"}</p>
+                  <p className="text-sm text-gray-600">Harga Produk</p>
+                  <p className="text-base font-semibold">{formatCurrency(viewingOrder.products?.price || 0)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Harga</p>
+                  <p className="text-sm text-gray-600">Status Pesanan</p>
+                  <Chip
+                    color={viewingOrder.pesanan?.status === "completed" ? "success" : "warning"}
+                    variant="flat"
+                  >
+                    {viewingOrder.pesanan?.status || "-"}
+                  </Chip>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Total Pesanan</p>
                   <p className="text-lg font-semibold text-green-600">
-                    {formatCurrency(viewingProduct.price)}
+                    {formatCurrency(viewingOrder.pesanan?.total_amount || 0)}
                   </p>
                 </div>
-                {viewingProduct.category && (
-                  <div>
-                    <p className="text-sm text-gray-600">Kategori</p>
-                    <p className="text-base">{viewingProduct.category}</p>
-                  </div>
-                )}
-                {viewingProduct.stock !== undefined && (
-                  <div>
-                    <p className="text-sm text-gray-600">Stok</p>
-                    <p className="text-base font-semibold">{viewingProduct.stock}</p>
-                  </div>
-                )}
               </div>
             )}
           </ModalBody>
@@ -286,4 +277,4 @@ const ProductComponent = () => {
   );
 };
 
-export default ProductComponent;
+export default OrderComponent;

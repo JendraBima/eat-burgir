@@ -16,14 +16,14 @@ import {
 } from "@heroui/react";
 import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import { useState } from "react";
-import { useProductManagement } from "../../../hooks/useProductManagement";
-import ProductModal from "./ProductModal";
-import ProductTableSkeleton from "./ProductTableSkeleton";
+import { useCartManagement } from "../../../hooks/useCartManagement";
+import CartModal from "./CartModal";
+import CartTableSkeleton from "./CartTableSkeleton";
 import ConfirmModal from "../../ConfirmModal";
 
-const ProductComponent = () => {
+const CartComponent = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewingProduct, setViewingProduct] = useState(null);
+  const [viewingCart, setViewingCart] = useState(null);
 
   const {
     items,
@@ -33,69 +33,50 @@ const ProductComponent = () => {
     setPage,
     isModalOpen,
     modalMode,
-    selectedProduct,
+    selectedCart,
     openCreateModal,
     openEditModal,
     closeModal,
     handleSubmit,
     isSubmitting,
-    // Delete modal
     isDeleteModalOpen,
-    productToDelete,
+    cartToDelete,
     isDeleting,
     openDeleteModal,
     closeDeleteModal,
-    confirmDeleteProduct,
-  } = useProductManagement();
+    confirmDeleteCart,
+  } = useCartManagement();
 
-  const openViewModal = (product) => {
-    setViewingProduct(product);
+  const openViewModal = (cart) => {
+    setViewingCart(cart);
     setIsViewModalOpen(true);
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
-    setViewingProduct(null);
+    setViewingCart(null);
   };
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const renderCell = (product, columnKey) => {
-    const cellValue = product[columnKey];
+  const renderCell = (cart, columnKey) => {
+    const cellValue = cart[columnKey];
 
     switch (columnKey) {
-      case "image":
-        return (
-          <Image
-            src={cellValue || "/placeholder-product.png"}
-            alt={product.name}
-            width={64}
-            height={64}
-            className="object-cover rounded-lg"
-          />
-        );
-      case "name":
+      case "product":
         return (
           <div className="flex flex-col">
-            <p className="font-semibold">{cellValue}</p>
+            <p className="font-semibold">{cart.products?.name || "-"}</p>
           </div>
         );
-      case "description":
-        return (
-          <div className="max-w-xs">
-            <p className="text-sm text-gray-600 truncate">{cellValue || "-"}</p>
-          </div>
-        );
-      case "price":
+      case "quantity":
         return (
           <div className="flex flex-col">
-            <p className="font-medium">{formatCurrency(cellValue)}</p>
+            <p className="font-medium">{cellValue}</p>
+          </div>
+        );
+      case "user":
+        return (
+          <div className="flex flex-col">
+            <p className="text-sm">{cart.users?.name || "-"}</p>
           </div>
         );
       case "actions":
@@ -106,7 +87,7 @@ const ProductComponent = () => {
               color="default"
               variant="flat"
               startContent={<Eye size={16} />}
-              onPress={() => openViewModal(product)}
+              onPress={() => openViewModal(cart)}
             >
               Lihat
             </Button>
@@ -115,7 +96,7 @@ const ProductComponent = () => {
               color="primary"
               variant="flat"
               startContent={<Pencil size={16} />}
-              onPress={() => openEditModal(product)}
+              onPress={() => openEditModal(cart)}
             >
               Edit
             </Button>
@@ -124,7 +105,7 @@ const ProductComponent = () => {
               color="danger"
               variant="flat"
               startContent={<Trash2 size={16} />}
-              onPress={() => openDeleteModal(product)}
+              onPress={() => openDeleteModal(cart)}
             >
               Hapus
             </Button>
@@ -139,24 +120,24 @@ const ProductComponent = () => {
     <div className="w-full space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Manajemen Produk</h1>
-          <p className="text-gray-600">Kelola produk yang tersedia di toko</p>
+          <h1 className="text-2xl font-bold">Manajemen Keranjang</h1>
+          <p className="text-gray-600">Kelola keranjang belanja pelanggan</p>
         </div>
         <Button
           color="primary"
           startContent={<Plus size={20} />}
           onPress={openCreateModal}
         >
-          Tambah Produk
+          Tambah Keranjang
         </Button>
       </div>
 
       {loading ? (
-        <ProductTableSkeleton />
+        <CartTableSkeleton />
       ) : (
         <>
           <Table
-            aria-label="Product table"
+            aria-label="Cart table"
             bottomContent={
               pages > 1 ? (
                 <div className="flex w-full justify-center">
@@ -174,24 +155,23 @@ const ProductComponent = () => {
             }
           >
             <TableHeader>
-              <TableColumn key="image">GAMBAR</TableColumn>
-              <TableColumn key="name">NAMA</TableColumn>
-              <TableColumn key="description">DESKRIPSI</TableColumn>
-              <TableColumn key="price">HARGA</TableColumn>
+              <TableColumn key="product">PRODUK</TableColumn>
+              <TableColumn key="quantity">JUMLAH</TableColumn>
+              <TableColumn key="user">PENGGUNA</TableColumn>
               <TableColumn key="actions">AKSI</TableColumn>
             </TableHeader>
             <TableBody
               items={items}
               emptyContent={
                 <div className="text-center py-10">
-                  <p className="text-gray-500">Belum ada produk</p>
+                  <p className="text-gray-500">Belum ada keranjang</p>
                   <Button
                     color="primary"
                     variant="flat"
                     className="mt-4"
                     onPress={openCreateModal}
                   >
-                    Tambah Produk Pertama
+                    Tambah Keranjang Pertama
                   </Button>
                 </div>
               }
@@ -208,21 +188,21 @@ const ProductComponent = () => {
         </>
       )}
 
-      <ProductModal
+      <CartModal
         isOpen={isModalOpen}
         onClose={closeModal}
         onSubmit={handleSubmit}
         mode={modalMode}
-        product={selectedProduct}
+        cart={selectedCart}
         isSubmitting={isSubmitting}
       />
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
-        onConfirm={confirmDeleteProduct}
-        title="Hapus Produk"
-        message={`Apakah Anda yakin ingin menghapus produk "${productToDelete?.name}"? Tindakan ini tidak dapat dibatalkan.`}
+        onConfirm={confirmDeleteCart}
+        title="Hapus Keranjang"
+        message={`Apakah Anda yakin ingin menghapus keranjang ini? Tindakan ini tidak dapat dibatalkan.`}
         confirmText="Hapus"
         cancelText="Batal"
         confirmColor="danger"
@@ -232,46 +212,27 @@ const ProductComponent = () => {
       <Modal isOpen={isViewModalOpen} onOpenChange={closeViewModal} size="lg">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            Detail Produk
+            Detail Keranjang
           </ModalHeader>
           <ModalBody>
-            {viewingProduct && (
+            {viewingCart && (
               <div className="space-y-4">
                 <div>
-                  <Image
-                    src={viewingProduct.image || "/placeholder-product.png"}
-                    alt={viewingProduct.name}
-                    width={300}
-                    height={300}
-                    className="object-cover rounded-lg w-full"
-                  />
+                  <p className="text-sm text-gray-600">Produk</p>
+                  <p className="text-lg font-semibold">{viewingCart.products?.name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Nama Produk</p>
-                  <p className="text-lg font-semibold">{viewingProduct.name}</p>
+                  <p className="text-sm text-gray-600">Jumlah</p>
+                  <p className="text-base font-semibold">{viewingCart.quantity}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Deskripsi</p>
-                  <p className="text-base">{viewingProduct.description || "-"}</p>
+                  <p className="text-sm text-gray-600">Pengguna</p>
+                  <p className="text-base">{viewingCart.users?.name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Harga</p>
-                  <p className="text-lg font-semibold text-green-600">
-                    {formatCurrency(viewingProduct.price)}
-                  </p>
+                  <p className="text-sm text-gray-600">No. Telepon</p>
+                  <p className="text-base">{viewingCart.users?.phone || "-"}</p>
                 </div>
-                {viewingProduct.category && (
-                  <div>
-                    <p className="text-sm text-gray-600">Kategori</p>
-                    <p className="text-base">{viewingProduct.category}</p>
-                  </div>
-                )}
-                {viewingProduct.stock !== undefined && (
-                  <div>
-                    <p className="text-sm text-gray-600">Stok</p>
-                    <p className="text-base font-semibold">{viewingProduct.stock}</p>
-                  </div>
-                )}
               </div>
             )}
           </ModalBody>
@@ -286,4 +247,4 @@ const ProductComponent = () => {
   );
 };
 
-export default ProductComponent;
+export default CartComponent;

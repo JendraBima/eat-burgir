@@ -30,6 +30,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, mode, product, isSubmitting }
       name: "",
       description: "",
       price: "",
+      stock: "",
     },
   });
 
@@ -38,6 +39,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, mode, product, isSubmitting }
       setValue("name", product.name || "");
       setValue("description", product.description || "");
       setValue("price", product.price || "");
+      setValue("stock", product.stock || "");
       setImagePreview(product.image || null);
       setImageFile(null);
     } else {
@@ -67,6 +69,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, mode, product, isSubmitting }
     submitData.append("name", data.name);
     submitData.append("description", data.description || "");
     submitData.append("price", data.price);
+    submitData.append("stock", data.stock);
     
     if (imageFile) {
       submitData.append("image", imageFile);
@@ -170,6 +173,20 @@ const ProductModal = ({ isOpen, onClose, onSubmit, mode, product, isSubmitting }
                     {...register("price", {
                       required: "Harga wajib diisi",
                       min: { value: 0, message: "Harga tidak boleh negatif" },
+                    })}
+                  />
+                </div>
+                <div>
+                  <Input
+                    label="Stock"
+                    placeholder="Masukkan jumlah stock"
+                    type="number"
+                    variant="bordered"
+                    isInvalid={!!errors.stock}
+                    errorMessage={errors.stock?.message}
+                    {...register("stock", {
+                      required: "Stock wajib diisi",
+                      min: { value: 0, message: "Stock tidak boleh negatif" },
                     })}
                   />
                 </div>
