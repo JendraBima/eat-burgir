@@ -49,6 +49,12 @@ export const useDashboard = () => {
         return status !== "cancelled";
       });
 
+      const pesananStatusMap = {};
+      pesananList.forEach((pesanan) => {
+        if (!pesanan.id) return;
+        pesananStatusMap[pesanan.id] = (pesanan.status || "").toLowerCase();
+      });
+
       const totalSales = validPesanan.length;
       const totalRevenue = validPesanan.reduce(
         (sum, pesanan) => sum + (pesanan.total_amount || 0),
@@ -101,7 +107,7 @@ export const useDashboard = () => {
       const productStatsMap = {};
 
       orderItems.forEach((item) => {
-        const parentStatus = (item.pesanan?.status || "").toLowerCase();
+        const parentStatus = pesananStatusMap[item.pesanan_id] || "";
         if (!parentStatus || parentStatus === "cancelled") {
           return;
         }
