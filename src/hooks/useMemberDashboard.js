@@ -1,62 +1,41 @@
 import { useState, useEffect } from "react";
-import { productService } from "../service/product.service";
 import { pesananService } from "../service/pesanan.service";
 import { orderService } from "../service/order.service";
-import { userService } from "../service/user.service";
 
-export const useDashboard = () => {
+export const useMemberDashboard = () => {
   const [stats, setStats] = useState({
-    totalProducts: 0,
-    totalSales: 0,
-    totalRevenue: 0,
-    totalCustomers: 0,
+    totalOrders: 0,
+    totalSpent: 0,
+    pendingOrders: 0,
   });
-  const [loading, setLoading] = useState(true);
   const [salesData, setSalesData] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [
-        productsResult,
-        pesananResult,
-        orderResult,
-        usersResult,
-      ] = await Promise.allSettled([
-        productService.getAll(),
-        pesananService.getAll(),
+
+      const [pesananResponse, orderResponse] = await Promise.all([
+        pesananService.getMine(),
         orderService.getAll(),
-        userService.getAll(),
       ]);
 
-      const getSafeData = (result, label) => {
-        if (result.status === "fulfilled") {
-          return result.value?.data || [];
-        }
+      const pesananList = pesananResponse?.data || [];
+      const orderItems = orderResponse?.data || [];
 
-        console.error(`Error fetching ${label}:`, result.reason);
-        return [];
-      };
+      const myOrderIds = new Set(pesananList.map((p) => p.id));
 
-      const products = getSafeData(productsResult, "products");
-      const pesananList = getSafeData(pesananResult, "pesanan");
-      const orderItems = getSafeData(orderResult, "orders");
-      const users = getSafeData(usersResult, "users");
+      const validOrders = pesananList.filter((p) => p.status !== "cancelled");
 
-      const validPesanan = pesananList.filter((pesanan) => {
-        const status = (pesanan.status || "").toLowerCase();
-        return status !== "cancelled";
-      });
-
-      const totalSales = validPesanan.length;
-      const totalRevenue = validPesanan.reduce(
-        (sum, pesanan) => sum + (pesanan.total_amount || 0),
+      const totalOrders = validOrders.length;
+      const totalSpent = validOrders.reduce(
+        (sum, p) => sum + (p.total_amount || 0),
         0
       );
-
-      const totalProducts = products.length;
-      const totalCustomers = users.filter((user) => user.role !== "admin").length;
+      const pendingOrders = pesananList.filter(
+        (p) => (p.status || "").toLowerCase() === "pending"
+      ).length;
 
       const now = new Date();
       const currentYear = now.getFullYear();
@@ -76,7 +55,7 @@ export const useDashboard = () => {
       ];
 
       const monthlySales = monthNames.map((monthName, monthIndex) => {
-        const monthOrders = validPesanan.filter((pesanan) => {
+        const monthOrders = validOrders.filter((pesanan) => {
           if (!pesanan.created_at) return false;
           const date = new Date(pesanan.created_at);
           return (
@@ -101,8 +80,8 @@ export const useDashboard = () => {
       const productStatsMap = {};
 
       orderItems.forEach((item) => {
-        const parentStatus = (item.pesanan?.status || "").toLowerCase();
-        if (!parentStatus || parentStatus === "cancelled") {
+        const pesanan = item.pesanan;
+        if (!pesanan || !myOrderIds.has(pesanan.id)) {
           return;
         }
 
@@ -135,16 +114,15 @@ export const useDashboard = () => {
         .slice(0, 5);
 
       setStats({
-        totalProducts,
-        totalSales,
-        totalRevenue,
-        totalCustomers,
+        totalOrders,
+        totalSpent,
+        pendingOrders,
       });
 
       setSalesData(monthlySales);
       setTopProducts(productsWithSales);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      console.error("Error fetching member dashboard data:", error);
     } finally {
       setLoading(false);
     }

@@ -3,7 +3,7 @@ import LandingPages from "../pages/LandingPage";
 import Login from "../pages/Auth/login/Login";
 import Register from "../pages/Auth/register/Register";
 import AdminPage from "../pages/admin";
-import DashboardLayout from "../pages/admin/layout/DashboardLayout";
+import AdminDashboardLayout from "../pages/admin/layout/DashboardLayout";
 import ProductAdminPage from "../pages/admin/produk";
 import ProfilePage from "../pages/admin/profile";
 import CartAdminPage from "../pages/admin/cart";
@@ -16,6 +16,9 @@ import MenuPages from "../pages/LandingPage/MenuPages";
 import ProductDetailPage from "../pages/LandingPage/ProductDetailPage";
 import CartPage from "../pages/CartPage";
 import CheckoutPage from "../pages/CheckoutPage";
+import MemberDashboardLayout from "../pages/member/layout/DashboardLayout";
+import MemberProfilePage from "../pages/member/profile";
+import MemberTransactionPage from "../pages/member/transaction";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -64,7 +67,7 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: (
       <ProtectedRoute requireAdmin={true}>
-        <DashboardLayout/>
+        <AdminDashboardLayout/>
       </ProtectedRoute>
     ),
     children: [
@@ -100,6 +103,28 @@ export const router = createBrowserRouter([
         path: "profile",
         element:<ProfilePage/>
       }
+    ],
+  },
+  {
+    path: "/member",
+    element: (
+      <ProtectedRoute requireAdmin={false}>
+        <MemberDashboardLayout/>
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <MemberTransactionPage />,
+      },
+      {
+        path: "transaction",
+        element: <MemberTransactionPage />,
+      },
+      {
+        path: "profile",
+        element: <MemberProfilePage />,
+      },
     ],
   },
   {

@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { motion } from "framer-motion";
-import { ShoppingCart, User, LogOut } from "lucide-react";
+import { ShoppingCart, User, LogOut, Layout } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuthStore } from "../../store/use-auth";
@@ -64,6 +64,15 @@ const Navbar = () => {
     await logout();
     setShowDropdown(false);
     navigate("/login");
+  };
+
+  const handleRoleDashboard =  () => {
+    if(user.role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/member");
+    }
+    setShowDropdown(false);
   };
 
   // Close dropdown on outside click
@@ -170,6 +179,14 @@ const Navbar = () => {
                   <p className="text-sm font-semibold text-gray-800">{user.name || "User"}</p>
                   <p className="text-xs text-gray-500">{user.email || ""}</p>
                 </div>
+
+                 <button
+                  onClick={handleRoleDashboard}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                >
+                  <Layout className="w-4 h-4" />
+                  Dashboard
+                </button>
 
                 <button
                   onClick={handleLogout}

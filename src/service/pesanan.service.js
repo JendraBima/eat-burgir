@@ -6,6 +6,11 @@ export const pesananService = {
     return response.data;
   },
 
+  getMine: async () => {
+    const response = await apiClient.get("/my-pesanan");
+    return response.data;
+  },
+
   getById: async (id) => {
     const response = await apiClient.get(`/pesanan/${id}`);
     return response.data;

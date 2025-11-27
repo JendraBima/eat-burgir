@@ -31,10 +31,11 @@ const Register = () => {
     }
   
     try {
+      const nama = formData.nama;
       const email = formData.email;
       const password = formData.password;
 
-     await authService.register(email, password);
+     await authService.register(email, nama,password);
    
       toast.success("Register Berhasil");
       router("/login");

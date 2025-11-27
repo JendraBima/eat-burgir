@@ -45,4 +45,19 @@ const SIDEBAR_ADMIN = [
   // },
 ]
 
+const SIDEBAR_MEMBER = [
+  {
+    key: "Dashboard",
+    label: "Dashboard",
+    icon: <LayoutDashboard className="w-5 h-5" />,
+    href: "/member",
+  },
+  {
+    key: "Transaksi",
+    label: "Transaksi",
+    icon: <CreditCard className="w-5 h-5" />,
+    href: "/member/transaction",
+  },
+]
+
 export default SIDEBAR_ADMIN;

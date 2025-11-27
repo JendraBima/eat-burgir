@@ -20,8 +20,11 @@ import { Eye, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { pesananService } from "../../../service/pesanan.service";
 import { toast } from "react-toastify";
+import { useAuthStore } from "../../../store/use-auth";
 
 const TransactionComponent = () => {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingPesanan, setViewingPesanan] = useState(null);
   const [pesanans, setPesanans] = useState([]);
@@ -35,7 +38,9 @@ const TransactionComponent = () => {
   const fetchPesanans = async () => {
     try {
       setLoading(true);
-      const response = await pesananService.getAll();
+      const response = isAdmin
+        ? await pesananService.getAll()
+        : await pesananService.getMine();
       const allPesanans = response.data || [];
       setPesanans(allPesanans);
       setPages(Math.ceil(allPesanans.length / rowsPerPage));
@@ -356,37 +361,39 @@ const TransactionComponent = () => {
                 </div>
 
                 {/* Status Update */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">
-                    Update Status
-                  </h3>
-                  <Select
-                    label="Status"
-                    value={viewingPesanan.status}
-                    onChange={(e) =>
-                      setViewingPesanan({
-                        ...viewingPesanan,
-                        status: e.target.value,
-                      })
-                    }
-                  >
-                    <SelectItem key="pending" value="pending">
-                      Menunggu
-                    </SelectItem>
-                    <SelectItem key="processing" value="processing">
-                      Diproses
-                    </SelectItem>
-                    <SelectItem key="shipped" value="shipped">
-                      Dikirim
-                    </SelectItem>
-                    <SelectItem key="completed" value="completed">
-                      Selesai
-                    </SelectItem>
-                    <SelectItem key="cancelled" value="cancelled">
-                      Dibatalkan
-                    </SelectItem>
-                  </Select>
-                </div>
+                {isAdmin && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h3 className="font-semibold text-gray-900 mb-3">
+                      Update Status
+                    </h3>
+                    <Select
+                      label="Status"
+                      value={viewingPesanan.status}
+                      onChange={(e) =>
+                        setViewingPesanan({
+                          ...viewingPesanan,
+                          status: e.target.value,
+                        })
+                      }
+                    >
+                      <SelectItem key="pending" value="pending">
+                        Menunggu
+                      </SelectItem>
+                      <SelectItem key="processing" value="processing">
+                        Diproses
+                      </SelectItem>
+                      <SelectItem key="shipped" value="shipped">
+                        Dikirim
+                      </SelectItem>
+                      <SelectItem key="completed" value="completed">
+                        Selesai
+                      </SelectItem>
+                      <SelectItem key="cancelled" value="cancelled">
+                        Dibatalkan
+                      </SelectItem>
+                    </Select>
+                  </div>
+                )}
               </div>
             )}
           </ModalBody>
@@ -394,15 +401,17 @@ const TransactionComponent = () => {
             <Button color="danger" variant="light" onPress={closeViewModal}>
               Tutup
             </Button>
-            <Button
-              color="primary"
-              onPress={() =>
-                handleStatusChange(viewingPesanan.id, viewingPesanan.status)
-              }
-              isLoading={isUpdatingStatus}
-            >
-              Simpan Status
-            </Button>
+            {isAdmin && (
+              <Button
+                color="primary"
+                onPress={() =>
+                  handleStatusChange(viewingPesanan.id, viewingPesanan.status)
+                }
+                isLoading={isUpdatingStatus}
+              >
+                Simpan Status
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>

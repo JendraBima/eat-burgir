@@ -65,7 +65,8 @@ export const useCartUser = () => {
         user_id: user.id,
         quantity,
       });
-      setCartItems([...cartItems, response.data]);
+      const newItem = response.data;
+      setCartItems([...cartItems, newItem]);
       toast.success("Produk ditambahkan ke keranjang");
       return true;
     } catch (err) {
@@ -78,8 +79,9 @@ export const useCartUser = () => {
   const updateCartItem = async (cartId, quantity) => {
     try {
       const response = await cartService.update(cartId, { quantity });
+      const updatedItem = response.data;
       setCartItems(
-        cartItems.map((item) => (item.id === cartId ? response.data : item))
+        cartItems.map((item) => (item.id === cartId ? updatedItem : item))
       );
       toast.success("Keranjang diperbarui");
       return true;
