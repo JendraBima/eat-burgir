@@ -79,12 +79,6 @@ const CheckoutPage = () => {
       setOrderPlaced(true);
       toast.success("Pesanan berhasil dibuat!");
 
-      // Redirect ke order confirmation setelah 3 detik
-      setTimeout(() => {
-        navigate("/order-confirmation", {
-          state: { pesananId, totalPrice, items: cartItems },
-        });
-      }, 3000);
     } catch (error) {
       toast.error(error.response?.data?.message || "Gagal membuat pesanan");
       console.error("Checkout error:", error);
