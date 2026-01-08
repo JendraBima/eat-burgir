@@ -61,10 +61,8 @@ const ContactUs = () => {
           className="text-gray-700 text-md leading-relaxed max-w-4xl mx-auto mb-3"
           variants={itemVariants}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus
-          fermentum lacus aliquet ante convallis, ut elementum eros pharetra. In
-          nibh ligula, porttitor eget egestas suscipit, porttitor quis turpis.
-          Nunc nulla ipsum, ornare vel imperdiet at, malesuada ac mauris.
+          Butuh informasi lebih lanjut atau ingin memesan? <br />
+          Hubungi kami dan kami akan segera membalas pesanmu.
         </motion.p>
 
         <motion.div

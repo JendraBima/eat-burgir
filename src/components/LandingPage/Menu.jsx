@@ -6,31 +6,31 @@ import { ShoppingCart } from "lucide-react";
 const menuItems = [
   {
     id: "1",
-    name: "Burgir OG",
+    name: "PAKET JURAGAN",
     price: 30000,
-    image: "/burgir-menu.png",
+    image: "/1.png",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+      "Paket ini dirancang khusus untuk Anda yang menginginkan kepuasan maksimal tanpa kompromi Dengan kombinasi menu premium, porsi yang lebih besar, dan pelengkap yang paling lengkap",
     rating: 5,
     reviews: 127,
   },
   {
     id: "2",
-    name: "Burgir OG",
+    name: "PAKET KARYAWAN",
     price: 30000,
-    image: "/burgir-menu.png",
+    image: "/2.png",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+      "Solusi makan siang praktis, lezat, dan tetap ramah di kantong bagi para pejuang produktivitas",
     rating: 5,
     reviews: 127,
   },
   {
     id: "3",
-    name: "Burgir OG",
+    name: "PAKET PELAJAR",
     price: 30000,
-    image: "/burgir-menu.png",
+    image: "/3.png",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+      "Nongkrong seru atau nugas jadi lebih asyik dengan Paket Pelajar.",
     rating: 5,
     reviews: 127,
   },

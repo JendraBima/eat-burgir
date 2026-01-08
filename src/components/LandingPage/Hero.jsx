@@ -23,10 +23,8 @@ const Hero = () => {
             Just One Bite.
           </h1>
           <p className="text-black mb-8 text-2xl leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus
-            fermentum lacus aliquet ante convallis, ut elementum eros pharetra.
-            In nibh ligula, porttitor eget egestas suscipit, porttitor quis
-            turpis.
+            Begitu digigit, rasa gurih dan juicy langsung meledak di mulut. 
+            Eat Burgir bukan sekadar burger ini pengalaman makan yang bikin nagih.
           </p>
           <Link
             to="/menu"
