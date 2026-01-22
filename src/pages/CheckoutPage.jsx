@@ -52,39 +52,89 @@ const CheckoutPage = () => {
 
     setIsProcessing(true);
 
+    // try {
+    //   // 1. Buat pesanan baru
+    //   const pesananRes = await pesananService.create({
+    //     user_id: user.id,
+    //     status: "pending",
+    //     total_amount: totalPrice,
+    //   });
+
+    //   const pesananId = pesananRes.data.id;
+
+    //   // 2. Buat order items untuk setiap cart item
+    //   await Promise.all(
+    //     cartItems.map((item) =>
+    //       orderService.create({
+    //         pesanan_id: pesananId,
+    //         product_id: item.product_id,
+    //         quantity: item.quantity,
+    //       })
+    //     )
+    //   );
+
+    //   // 3. Hapus cart items setelah checkout berhasil
+    //   await Promise.all(cartItems.map((item) => cartService.remove(item.id)));
+
+    //   setOrderPlaced(true);
+    //   toast.success("Pesanan berhasil dibuat!");
+
+    // } catch (error) {
+    //   toast.error(error.response?.data?.message || "Gagal membuat pesanan");
+    //   console.error("Checkout error:", error);
+    // } finally {
+    //   setIsProcessing(false);
+    // }
+
     try {
-      // 1. Buat pesanan baru
-      const pesananRes = await pesananService.create({
-        user_id: user.id,
-        status: "pending",
-        total_amount: totalPrice,
-      });
+  const pesananRes = await pesananService.create({
+    user_id: user.id,
+    status: "pending",
+    total_amount: totalPrice,
+  });
 
-      const pesananId = pesananRes.data.id;
+  const pesananId = pesananRes.data.id;
 
-      // 2. Buat order items untuk setiap cart item
-      await Promise.all(
-        cartItems.map((item) =>
-          orderService.create({
-            pesanan_id: pesananId,
-            product_id: item.product_id,
-            quantity: item.quantity,
-          })
-        )
-      );
+  await Promise.all(
+    cartItems.map((item) =>
+      orderService.create({
+        pesanan_id: pesananId,
+        product_id: item.product_id,
+        quantity: item.quantity,
+      })
+    )
+  );
 
-      // 3. Hapus cart items setelah checkout berhasil
-      await Promise.all(cartItems.map((item) => cartService.remove(item.id)));
+  await Promise.all(cartItems.map((item) => cartService.remove(item.id)));
 
-      setOrderPlaced(true);
-      toast.success("Pesanan berhasil dibuat!");
+  setOrderPlaced(true);
+  toast.success("Pesanan berhasil dibuat!");
 
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal membuat pesanan");
-      console.error("Checkout error:", error);
-    } finally {
-      setIsProcessing(false);
-    }
+  const ADMIN_WA = "628817249659";
+
+  const message = `
+Halo Mas 🙏
+Saya sudah pesan di Eat Burgir.
+
+Nama: ${formData.name}
+No HP: ${formData.phone}
+Alamat: ${formData.address}
+Total: Rp ${totalPrice.toLocaleString()}
+
+Mohon segera diproses ya. Terima kasih 🙏
+`;
+
+  const waUrl = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(message)}`;
+  window.open(waUrl, "_blank");
+
+} catch (error) {
+  toast.error(error.response?.data?.message || "Gagal membuat pesanan");
+  console.error("Checkout error:", error);
+}
+finally{
+
+  setIsProcessing(false);
+}
   };
 
   if (orderPlaced) {
